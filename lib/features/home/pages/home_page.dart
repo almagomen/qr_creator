@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:dio/dio.dart';
+import 'package:qr_creator/features/home/models/data_json.dart';
 
 class Product {
   final int id;
@@ -9,6 +9,8 @@ class Product {
   final double price;
   final String category;
   final String image;
+  final int stock;
+  final String unit;
 
   Product({
     required this.id,
@@ -16,15 +18,19 @@ class Product {
     required this.price,
     required this.category,
     required this.image,
+    required this.stock,
+    required this.unit,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['id'],
-      title: json['title'],
-      price: json['price'].toDouble(),
-      category: json['category'],
-      image: json['image'],
+      title: json['titulo'],
+      price: json['precio'].toDouble(),
+      category: json['categoria'],
+      image: json['imagen'],
+      stock: json['stock'],
+      unit: json['unidad'],
     );
   }
 }
@@ -42,17 +48,13 @@ class HomePage extends HookWidget {
 
     Future<void> fetchProducts() async {
       try {
-        final dio = Dio();
-        final response = await dio.get(
-          'https://api.escuelajs.co/api/v1/products',
-        );
         final List<Product> fetchedProducts =
-            (response.data as List)
+            productosSupermercado
                 .map((json) => Product.fromJson(json))
                 .toList();
         products.value = fetchedProducts;
       } catch (e) {
-        print('Error fetching products: $e');
+        debugPrint('Error cargando productos: $e');
       } finally {
         isLoading.value = false;
       }

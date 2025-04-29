@@ -1,5 +1,5 @@
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:qr_creator/features/home/presentation/pages/home_page.dart';
+import 'package:qr_creator/features/home/pages/home_page.dart';
 
 class HomeModule extends Module {
   @override
