@@ -1,3 +1,35 @@
+class Product {
+  final int id;
+  final String title;
+  final double price;
+  final String category;
+  final String image;
+  final int stock;
+  final String unit;
+
+  Product({
+    required this.id,
+    required this.title,
+    required this.price,
+    required this.category,
+    required this.image,
+    required this.stock,
+    required this.unit,
+  });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'],
+      title: json['titulo'],
+      price: json['precio'].toDouble(),
+      category: json['categoria'],
+      image: json['imagen'],
+      stock: json['stock'],
+      unit: json['unidad'],
+    );
+  }
+}
+
 final List<Map<String, dynamic>> productosSupermercado = [
   {
     'id': 1,

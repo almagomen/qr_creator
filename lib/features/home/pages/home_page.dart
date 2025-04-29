@@ -1,39 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qr_creator/features/home/models/data_json.dart';
-
-class Product {
-  final int id;
-  final String title;
-  final double price;
-  final String category;
-  final String image;
-  final int stock;
-  final String unit;
-
-  Product({
-    required this.id,
-    required this.title,
-    required this.price,
-    required this.category,
-    required this.image,
-    required this.stock,
-    required this.unit,
-  });
-
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: json['id'],
-      title: json['titulo'],
-      price: json['precio'].toDouble(),
-      category: json['categoria'],
-      image: json['imagen'],
-      stock: json['stock'],
-      unit: json['unidad'],
-    );
-  }
-}
+import 'package:qr_creator/features/home/widgets/shopping_cart_button.dart';
+import 'package:qr_creator/features/home/widgets/products_view.dart';
 
 class HomePage extends HookWidget {
   const HomePage({super.key});
@@ -65,15 +34,6 @@ class HomePage extends HookWidget {
       return null;
     }, []);
 
-    List<Product> getFilteredProducts() {
-      if (selectedCategory.value == 'all') {
-        return products.value;
-      }
-      return products.value
-          .where((product) => product.category == selectedCategory.value)
-          .toList();
-    }
-
     void toggleProductSelection(Product product) {
       if (selectedProducts.value.contains(product)) {
         selectedProducts.value =
@@ -99,147 +59,27 @@ class HomePage extends HookWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Platzi Store'),
+        title: const Text('Guapli Store'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder:
-                    (context) => AlertDialog(
-                      title: const Text('Carrito'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ...selectedProducts.value.map(
-                            (product) => ListTile(
-                              title: Text(product.title),
-                              subtitle: Text('\$${product.price}'),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.remove_shopping_cart),
-                                onPressed:
-                                    () => toggleProductSelection(product),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            showQR.value = true;
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Generar QR'),
-                        ),
-                      ],
-                    ),
-              );
-            },
+          ShoppingCartButton(
+            selectedProducts: selectedProducts.value,
+            onGenerateQR: () => showQR.value = true,
+            onRemoveItem: toggleProductSelection,
           ),
         ],
       ),
+
       body:
           isLoading.value
               ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        ChoiceChip(
-                          label: const Text('Todos'),
-                          selected: selectedCategory.value == 'all',
-                          onSelected: (_) => selectedCategory.value = 'all',
-                        ),
-                        ...products.value
-                            .map((product) => product.category)
-                            .toSet()
-                            .map(
-                              (category) => Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                ),
-                                child: ChoiceChip(
-                                  label: Text(category),
-                                  selected: selectedCategory.value == category,
-                                  onSelected:
-                                      (_) => selectedCategory.value = category,
-                                ),
-                              ),
-                            ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: GridView.builder(
-                      padding: const EdgeInsets.all(8),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.7,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                          ),
-                      itemCount: getFilteredProducts().length,
-                      itemBuilder: (context, index) {
-                        final product = getFilteredProducts()[index];
-                        return Card(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                child: Image.network(
-                                  product.image,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      product.title,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Text(
-                                      '\$${product.price}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        selectedProducts.value.contains(product)
-                                            ? Icons.check_circle
-                                            : Icons.add_shopping_cart,
-                                      ),
-                                      onPressed:
-                                          () => toggleProductSelection(product),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  if (showQR.value)
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: QrImageView(
-                        data: getQRData(),
-                        version: QrVersions.auto,
-                        size: 200.0,
-                      ),
-                    ),
-                ],
+              : ProductsView(
+                products: products.value,
+                selectedProducts: selectedProducts.value,
+                selectedCategory: selectedCategory.value,
+                showQR: showQR.value,
+                toggleProductSelection: toggleProductSelection,
+                onCategoryChanged: (category) => selectedCategory.value = category,
+                getQRData: getQRData,
               ),
     );
   }
