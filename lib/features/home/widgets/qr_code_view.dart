@@ -1,22 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class QRCodeView extends StatefulWidget {
+class QRCodeView extends HookWidget {
   final String qrData;
   final VoidCallback onBack;
 
   const QRCodeView({super.key, required this.qrData, required this.onBack});
 
   @override
-  State<QRCodeView> createState() => _QRCodeViewState();
-}
-
-class _QRCodeViewState extends State<QRCodeView> {
-  final GlobalKey _qrKey = GlobalKey();
-  bool _isSaving = false;
-
-  @override
   Widget build(BuildContext context) {
+    final qrKey = useMemoized(() => GlobalKey(), []);
+    final isSaving = useState(false);
+
+    void simulateSaveQR() {
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      isSaving.value = true;
+
+      // Simular una pequeña demora
+      Future.delayed(const Duration(milliseconds: 800), () {
+        isSaving.value = false;
+
+        // Mostrar mensaje de éxito
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('QR code saved successfully'),
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('My QR code')),
       body: Center(
@@ -31,9 +46,9 @@ class _QRCodeViewState extends State<QRCodeView> {
               ),
               padding: const EdgeInsets.all(16),
               child: RepaintBoundary(
-                key: _qrKey,
+                key: qrKey,
                 child: QrImageView(
-                  data: widget.qrData,
+                  data: qrData,
                   version: QrVersions.auto,
                   size: 250.0,
                   backgroundColor: Colors.white,
@@ -47,18 +62,18 @@ class _QRCodeViewState extends State<QRCodeView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: widget.onBack,
+                    child: OutlinedButton(
+                      onPressed: onBack,
                       child: const Text('Back'),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child:
-                        _isSaving
+                        isSaving.value
                             ? const Center(child: CircularProgressIndicator())
-                            : ElevatedButton(
-                              onPressed: () => _simulateSaveQR(),
+                            : OutlinedButton(
+                              onPressed: () => simulateSaveQR(),
                               child: const Text('Save'),
                             ),
                   ),
@@ -69,28 +84,5 @@ class _QRCodeViewState extends State<QRCodeView> {
         ),
       ),
     );
-  }
-
-  void _simulateSaveQR() {
-    setState(() {
-      _isSaving = true;
-    });
-
-    // Simular una pequeña demora
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (!mounted) return;
-
-      setState(() {
-        _isSaving = false;
-      });
-
-      // Mostrar mensaje de éxito
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('QR guardado correctamente'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    });
   }
 }

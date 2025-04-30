@@ -5,77 +5,30 @@ class ProductsView extends StatelessWidget {
   const ProductsView({
     super.key,
     required this.products,
-    required this.selectedProducts,
-    required this.selectedCategory,
-    required this.showQR,
-    required this.toggleProductSelection,
-    required this.onCategoryChanged,
-    required this.getQRData,
+    required this.onGenerateQR,
   });
 
   final List<Product> products;
-  final List<Product> selectedProducts;
-  final String selectedCategory;
-  final bool showQR;
-  final Function(Product) toggleProductSelection;
-  final Function(String) onCategoryChanged;
-  final String Function() getQRData;
+  final Function(Product) onGenerateQR;
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [_buildCategoryFilter(), _buildProductsGrid()]);
-  }
-
-  Widget _buildCategoryFilter() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          ChoiceChip(
-            label: const Text('Todos'),
-            selected: selectedCategory == 'all',
-            onSelected: (_) => onCategoryChanged('all'),
-          ),
-          ...products
-              .map((product) => product.category)
-              .toSet()
-              .map(
-                (category) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: ChoiceChip(
-                    label: Text(category),
-                    selected: selectedCategory == category,
-                    onSelected: (_) => onCategoryChanged(category),
-                  ),
-                ),
-              ),
-        ],
-      ),
-    );
+    return Column(children: [_buildProductsGrid()]);
   }
 
   Widget _buildProductsGrid() {
-    final filteredProducts =
-        products
-            .where(
-              (product) =>
-                  selectedCategory == 'all' ||
-                  product.category == selectedCategory,
-            )
-            .toList();
-
     return Expanded(
       child: GridView.builder(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(20),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           childAspectRatio: 0.7,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
-        itemCount: filteredProducts.length,
+        itemCount: products.length,
         itemBuilder: (context, index) {
-          final product = filteredProducts[index];
+          final product = products[index];
           return Card(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -100,20 +53,25 @@ class ProductsView extends StatelessWidget {
                     children: [
                       Text(
                         product.title,
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         '\$${product.price}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      IconButton(
-                        icon: Icon(
-                          selectedProducts.contains(product)
-                              ? Icons.check_circle
-                              : Icons.add_shopping_cart,
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.qr_code),
+                          label: const Text(
+                            'Generar QR',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          onPressed: () => onGenerateQR(product),
                         ),
-                        onPressed: () => toggleProductSelection(product),
                       ),
                     ],
                   ),

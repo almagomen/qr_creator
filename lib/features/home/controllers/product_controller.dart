@@ -16,4 +16,20 @@ class ProductController {
       return [];
     }
   }
+
+  // Método para cargar productos y manejar estados
+  Future<void> loadProducts({
+    required ValueNotifier<bool> isLoading,
+    required ValueNotifier<List<Product>> products,
+  }) async {
+    isLoading.value = true;
+    try {
+      final fetchedProducts = await fetchProducts();
+      products.value = fetchedProducts;
+    } catch (e) {
+      debugPrint('Error cargando productos: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }
