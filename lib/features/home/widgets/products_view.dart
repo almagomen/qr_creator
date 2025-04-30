@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qr_creator/features/home/models/data_json.dart';
 
 class ProductsView extends StatelessWidget {
@@ -24,13 +23,7 @@ class ProductsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildCategoryFilter(),
-        _buildProductsGrid(),
-        if (showQR) _buildQRCode(),
-      ],
-    );
+    return Column(children: [_buildCategoryFilter(), _buildProductsGrid()]);
   }
 
   Widget _buildCategoryFilter() {
@@ -129,17 +122,6 @@ class ProductsView extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildQRCode() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: QrImageView(
-        data: getQRData(),
-        version: QrVersions.auto,
-        size: 200.0,
       ),
     );
   }

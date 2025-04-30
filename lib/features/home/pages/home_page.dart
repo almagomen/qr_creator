@@ -5,6 +5,7 @@ import 'package:qr_creator/features/home/controllers/product_controller.dart';
 import 'package:qr_creator/features/home/models/data_json.dart';
 import 'package:qr_creator/features/home/widgets/products_view.dart';
 import 'package:qr_creator/features/home/widgets/shopping_cart_button.dart';
+import 'package:qr_creator/features/home/widgets/qr_code_view.dart';
 
 class HomePage extends HookWidget {
   const HomePage({super.key});
@@ -64,13 +65,25 @@ class HomePage extends HookWidget {
           .toString();
     }
 
+    void showQRCodeView() {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder:
+              (context) => QRCodeView(
+                qrData: getQRData(),
+                onBack: () => Navigator.of(context).pop(),
+              ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Platzi Store'),
         actions: [
           ShoppingCartButton(
             selectedProducts: selectedProducts.value,
-            onGenerateQR: () => showQR.value = true,
+            onGenerateQR: showQRCodeView,
             onRemoveItem: toggleProductSelection,
           ),
         ],
