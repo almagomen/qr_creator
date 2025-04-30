@@ -24,6 +24,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Esta aplicación requiere acceso para guardar las imágenes de código QR en tu galería de fotos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Esta aplicación requiere acceso a la galería de fotos para guardar las imágenes de código QR.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

@@ -1,6 +1,10 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:gal/gal.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:typed_data';
 
 class QRCodeView extends HookWidget {
   final String qrData;
@@ -13,23 +17,72 @@ class QRCodeView extends HookWidget {
     final qrKey = useMemoized(() => GlobalKey(), []);
     final isSaving = useState(false);
 
-    void simulateSaveQR() {
+    Future<void> saveQRToGallery() async {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
       isSaving.value = true;
 
-      // Simular una pequeña demora
-      Future.delayed(const Duration(milliseconds: 800), () {
-        isSaving.value = false;
+      try {
+        // Verificar y solicitar permisos
+        final hasAccess = await Gal.hasAccess();
+        if (!hasAccess) {
+          final granted = await Gal.requestAccess();
+          if (!granted) {
+            scaffoldMessenger.showSnackBar(
+              const SnackBar(
+                content: Text('Permission denied to save to gallery'),
+                duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            isSaving.value = false;
+            return;
+          }
+        }
 
-        // Mostrar mensaje de éxito
+        // Capturar la imagen del QR
+        RenderRepaintBoundary boundary =
+            qrKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+        ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+        ByteData? byteData = await image.toByteData(
+          format: ui.ImageByteFormat.png,
+        );
+
+        if (byteData != null) {
+          final Uint8List pngBytes = byteData.buffer.asUint8List();
+
+          // Guardar en la galería
+          try {
+            await Gal.putImageBytes(pngBytes);
+
+            // Mostrar mensaje de éxito
+            scaffoldMessenger.showSnackBar(
+              const SnackBar(
+                content: Text('QR code saved to gallery'),
+                duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          } catch (e) {
+            scaffoldMessenger.showSnackBar(
+              SnackBar(
+                content: Text('Error saving to gallery: ${e.toString()}'),
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        }
+      } catch (e) {
         scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            content: Text('QR code saved successfully'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text('Error capturing QR: ${e.toString()}'),
+            duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
           ),
         );
-      });
+      } finally {
+        isSaving.value = false;
+      }
     }
 
     return Scaffold(
@@ -73,8 +126,8 @@ class QRCodeView extends HookWidget {
                         isSaving.value
                             ? const Center(child: CircularProgressIndicator())
                             : OutlinedButton(
-                              onPressed: () => simulateSaveQR(),
-                              child: const Text('Save'),
+                              onPressed: () => saveQRToGallery(),
+                              child: const Text('Save to Gallery'),
                             ),
                   ),
                 ],
