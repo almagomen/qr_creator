@@ -9,27 +9,22 @@ class ProductController {
 
   // Método para obtener productos desde el servicio
   Future<List<Product>> fetchProducts() async {
-    try {
-      return await _productService.getProducts();
-    } catch (e) {
+    try { return await _productService.getProducts();}
+    catch (e) {
       debugPrint('Error en el controlador: $e');
       return [];
     }
   }
 
-  // Método para cargar productos y manejar estados
+  // Método para cargar productos
   Future<void> loadProducts({
-    required ValueNotifier<bool> isLoading,
     required ValueNotifier<List<Product>> products,
   }) async {
-    isLoading.value = true;
     try {
       final fetchedProducts = await fetchProducts();
       products.value = fetchedProducts;
     } catch (e) {
       debugPrint('Error cargando productos: $e');
-    } finally {
-      isLoading.value = false;
     }
   }
 }
