@@ -62,6 +62,15 @@ class ProductsView extends StatelessWidget {
   }
 
   Widget _buildProductsGrid() {
+    final filteredProducts =
+        products
+            .where(
+              (product) =>
+                  selectedCategory == 'all' ||
+                  product.category == selectedCategory,
+            )
+            .toList();
+
     return Expanded(
       child: GridView.builder(
         padding: const EdgeInsets.all(8),
@@ -71,15 +80,25 @@ class ProductsView extends StatelessWidget {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
-        itemCount: getFilteredProducts().length,
+        itemCount: filteredProducts.length,
         itemBuilder: (context, index) {
-          final product = getFilteredProducts()[index];
+          final product = filteredProducts[index];
           return Card(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: Image.network(product.image, fit: BoxFit.cover),
+                  child: Image.network(
+                    product.images.isNotEmpty
+                        ? product.images[0]
+                        : 'https://placehold.co/600x400',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(Icons.image_not_supported, size: 50),
+                      );
+                    },
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8),
@@ -123,14 +142,5 @@ class ProductsView extends StatelessWidget {
         size: 200.0,
       ),
     );
-  }
-
-  List<Product> getFilteredProducts() {
-    if (selectedCategory == 'all') {
-      return products;
-    }
-    return products
-        .where((product) => product.category == selectedCategory)
-        .toList();
   }
 }

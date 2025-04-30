@@ -1,9 +1,14 @@
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:qr_creator/features/home/controllers/product_controller.dart';
 import 'package:qr_creator/features/home/pages/home_page.dart';
+import 'package:qr_creator/features/home/services/product_service.dart';
 
 class HomeModule extends Module {
   @override
-  void binds(i) {}
+  void binds(i) {
+    i.add(ProductService.new);
+    i.add(ProductController.new);
+  }
 
   @override
   void routes(r) {
