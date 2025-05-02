@@ -23,7 +23,7 @@ class QRCodeView extends HookWidget {
     String productTitle = "Producto";
     try {
       productData = jsonDecode(qrData) as Map<String, dynamic>;
-      productTitle = productData?['title'] ?? "Producto";
+      productTitle = productData['title'] ?? "Producto";
     } catch (e) {
       // Si hay error al decodificar, usamos valores por defecto
     }
@@ -40,13 +40,8 @@ class QRCodeView extends HookWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: Text('Código QR: $productTitle'),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Modular.to.pop(),
-        ),
+        title: Text('Código QR'),
+        
       ),
       body: SafeArea(
         child: Padding(
@@ -92,7 +87,7 @@ class QRCodeView extends HookWidget {
                               ),
                             ),
                             Text(
-                              productTitle,
+                              productTitle, // Removed uppercase conversion
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
