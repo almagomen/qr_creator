@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:qr_creator/features/home/models/data_json.dart';
+import 'package:qr_creator/features/home/models/product.dart';
 import 'package:qr_creator/features/home/services/product_service.dart';
 
 class ProductController {

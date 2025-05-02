@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:qr_creator/features/home/models/data_json.dart';
+import 'package:qr_creator/features/home/models/product.dart';
 
 class ProductService {
   final Dio _dio;
