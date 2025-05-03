@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:qr_creator/features/home/widgets/guapli_qr.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qr_creator/features/home/services/qr_gallery_service.dart';
 
@@ -116,23 +117,7 @@ class QRCodeView extends HookWidget {
                       padding: const EdgeInsets.all(24.0),
                       child: RepaintBoundary(
                         key: qrKey,
-                        child: QrImageView(
-                          data: qrData,
-                          version: QrVersions.auto,
-                          size: 250,
-                          backgroundColor: Colors.white,
-                          eyeStyle: const QrEyeStyle(
-                            eyeShape: QrEyeShape.circle,
-                            color: Color.fromARGB(255, 130, 0, 121),
-                          ),
-                          embeddedImage: NetworkImage(
-                            'https://th.bing.com/th/id/OIP.-JoHf34bh-bLDHAA6gG4FwHaHa?rs=1&pid=ImgDetMain',
-                          ),
-                          dataModuleStyle: const QrDataModuleStyle(
-                            dataModuleShape: QrDataModuleShape.circle,
-                            color: Color.fromARGB(255, 139, 0, 116),
-                          ),
-                        ),
+                        child: GuapliQr(qrData: qrData),
                       ),
                     ),
                   ),
@@ -182,3 +167,5 @@ class QRCodeView extends HookWidget {
     );
   }
 }
+
+
